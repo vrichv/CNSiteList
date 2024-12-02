@@ -40,6 +40,10 @@ jobs:
           cp extract.sh domain-list-community/data/
           cd domain-list-community/data
           bash extract.sh
+          ls -l cn-domain*
+
+      - name: List files
+        run: pwd && ls -R domain-list-community/data/cn-domain*
 
       - name: Create a release
         if: ${{ env.NeedToSync }}
@@ -60,7 +64,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./domain-list-community/data/cn-domain.txt
+          asset_path: domain-list-community/data/cn-domain.txt
           asset_name: cn-domain.txt
           asset_content_type: text/plain
 
@@ -71,6 +75,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./domain-list-community/data/cn-domain-agh.txt
+          asset_path: domain-list-community/data/cn-domain-agh.txt
           asset_name: cn-domain-agh.txt
           asset_content_type: text/plain
