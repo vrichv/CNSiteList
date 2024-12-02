@@ -60,7 +60,7 @@ grep -v "\.cn" "$temp_file" |grep -v "^#"|grep -v "@ads" |grep -v ":" |grep -v "
 sed -i  's/@cn//g' "$temp_file2"
 cat "$temp_file2" | while read domain; do echo "$domain" | rev | cut -d. -f1-2 | rev; done | sort -u >"$temp_file"
  (echo -n "[/"; tr '\n' '/' < "$temp_file"; echo "]https://223.5.5.5/dns-query") > cn-domain-agh.txt
-mv "$temp_file" "cn-domains.txt"
+mv "$temp_file" "cn-domain.txt"
 
 count=$(wc -l < cn-domains.txt)
 echo "Processed $count unique domains"

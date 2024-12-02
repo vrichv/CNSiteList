@@ -42,39 +42,14 @@ jobs:
           bash extract.sh
           ls -l cn-domain*
 
-      - name: List files
-        run: pwd && ls -R domain-list-community/data/cn-domain*
-
-      - name: Create a release
+      - name: Release
         if: ${{ env.NeedToSync }}
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.TAG_NAME }}
-          release_name: ${{ env.RELEASE_NAME }}
-          draft: false
-          prerelease: false
-
-      - name: Upload assets
-        if: ${{ env.NeedToSync }}
-        uses: actions/upload-release-asset@v1
+          name: ${{ env.RELEASE_NAME }}
+          files: |
+            domain-list-community/data/cn-domain.txt
+            domain-list-community/data/cn-domain-agh.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: domain-list-community/data/cn-domain.txt
-          asset_name: cn-domain.txt
-          asset_content_type: text/plain
-
-      - name: Upload assets 2
-        if: ${{ env.NeedToSync }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: domain-list-community/data/cn-domain-agh.txt
-          asset_name: cn-domain-agh.txt
-          asset_content_type: text/plain
