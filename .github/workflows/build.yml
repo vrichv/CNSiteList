@@ -1,37 +1,76 @@
-name: cn domain list
-
+name: Build geosite.dat
 on:
+  workflow_dispatch:
   schedule:
-    - cron: "0 0 * * 5"
+    - cron: "00 00 * * 5"
   push:
-    tags:
-      - "v*"
-
+    branches:
+      - main
+    paths-ignore:
+      - "**/README.md"
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
+      - name: Compare latest tags and set variables
+        run: |
+          set -x
+          upstreamLatestTag=$(curl -sSL --connect-timeout 5 -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/v2fly/domain-list-community/releases/latest | grep "tag_name" | cut -d\" -f4)
+          thisLatestTag=$(curl -sSL --connect-timeout 5 -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository }}/releases/latest | grep "tag_name" | cut -d\" -f4)
+          if [[ "X"$upstreamLatestTag != "X"$thisLatestTag ]]; then
+            echo "NeedToSync=true" >> $GITHUB_ENV
+          fi
+          echo "RELEASE_NAME=$upstreamLatestTag" >> $GITHUB_ENV
+          echo "TAG_NAME=$upstreamLatestTag" >> $GITHUB_ENV
+
+        shell: bash
+
       - name: Checkout codebase
         uses: actions/checkout@v3
+        if: ${{ env.NeedToSync }}
 
       - name: Clone v2fly/domain-list-community
+        if: ${{ env.NeedToSync }}
         run: git clone --depth=1 https://github.com/v2fly/domain-list-community.git
 
       - name: Copy and Extract
+        if: ${{ env.NeedToSync }}
         run: |
-          cd $GITHUB_WORKSPACE
           cp my-extra.txt domain-list-community/data/
           cp extract.sh domain-list-community/data/
           cd domain-list-community/data
           bash extract.sh
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ github.run_number }}
-          files: |
-            domain-list-community/data/cn-domain.txt
-            domain-list-community/data/cn-domain-agh.txt
+      - name: Create a release
+        if: ${{ env.NeedToSync }}
+        id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: ${{ env.RELEASE_NAME }}
+          draft: false
+          prerelease: false
+
+      - name: Upload cn-domain.txt
+        if: ${{ env.NeedToSync }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./domain-list-community/data/cn-domain.txt
+          asset_name: cn-domain.txt
+          asset_content_type: text/plain
+
+      - name: Upload cn-domain-agh.txt
+        if: ${{ env.NeedToSync }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./domain-list-community/data/cn-domain-agh.txt
+          asset_name: cn-domain-agh.txt
+          asset_content_type: text/plain
