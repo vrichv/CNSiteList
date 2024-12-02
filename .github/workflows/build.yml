@@ -24,6 +24,7 @@ jobs:
 
       - name: Copy and Extract
         run: |
+          cd $GITHUB_WORKSPACE
           cp my-extra.txt domain-list-community/data/
           cp extract.sh domain-list-community/data/
           cd domain-list-community/data
