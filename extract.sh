@@ -26,17 +26,19 @@ extract_domains() {
         # Skip empty lines and comments
         [[ -z "$line" || "$line" =~ ^# ]] && continue
 
-        # Handle includes
+        # Remove any trailing comments first
+        line="${line%%#*}"
+        # Trim whitespace
+        line="$(echo "$line" | tr -d '[:space:]')"
+        [[ -z "$line" ]] && continue
+
+        # Handle includes after comments removed
         if [[ "$line" =~ ^include: ]]; then
             included_file="${line#include:}"
             extract_domains "$included_file"
         # Handle regular domains (skip lines starting with @)
         elif [[ ! "$line" =~ ^@ ]]; then
-            # Remove any trailing comments
-            domain="${line%%#*}"
-            # Trim whitespace
-            domain="$(echo "$domain" | tr -d '[:space:]')"
-            [[ -n "$domain" ]] && echo "$domain"
+            [[ -n "$line" ]] && echo "$line"
         fi
     done < "$file"
 }
@@ -45,8 +47,8 @@ extract_domains() {
 cd "$(dirname "$0")"  # Change to script directory
 
 # Create temporary file for all domains
-temp_file=$(mktemp)
-temp_file2=$(mktemp)
+temp_file=tmp_file1
+temp_file2=tmp_file2
 
 if [ -f "$extra_file" ]; then
     grep -v "\.cn" "$extra_file" |grep -v "^#" >> "geolocation-cn"
@@ -60,5 +62,5 @@ cat "$temp_file2" | while read domain; do echo "$domain" | rev | cut -d. -f1-2 |
  (echo -n "[/"; tr '\n' '/' < "$temp_file"; echo "]https://223.5.5.5/dns-query") > cn-domain-agh.txt
 mv "$temp_file" "cn-domains.txt"
 
-count=$(wc -l < "$temp_file")
+count=$(wc -l < cn-domains.txt)
 echo "Processed $count unique domains"
