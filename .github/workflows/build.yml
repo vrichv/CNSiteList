@@ -1,0 +1,37 @@
+name: cn domain list
+
+on:
+  schedule:
+    - cron: "0 0 * * 5"
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone v2fly/domain-list-community
+        uses: actions/checkout@v3
+        with:
+          repository: v2fly/domain-list-community
+          ref: ${{ needs.check.outputs.latest_tag }}
+          fetch-depth: 1
+
+      - name: Copy and Extract
+        run: |
+          cp my-extra.txt domain-list-community/data/
+          cp extract.sh domain-list-community/data/
+          cd domain-list-community/data
+          bash extract.sh
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          files: |
+            domain-list-community/data/cn-domain.txt
+            domain-list-community/data/cn-domain-agh.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

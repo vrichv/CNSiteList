@@ -1,0 +1,23 @@
+# apple
+apple.com
+cdn-apple.com
+apple-mapkit.com
+apple-dns.net
+icloud.com
+icloud-content.com
+mzstatic.com
+cdnmg.com
+aaplimg.com
+akadns.net
+
+#tencent cloud
+qcloud.com
+myqcloud.com
+tencent-cloud.net
+
+#xiaohongshu
+xiaohongshu.com
+xhscdn.com
+
+# futu
+futunn.com
