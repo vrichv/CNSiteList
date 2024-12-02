@@ -44,14 +44,33 @@ jobs:
       - name: Create a release
         if: ${{ env.NeedToSync }}
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.TAG_NAME }}
-          name: ${{ env.RELEASE_NAME }}
+          release_name: ${{ env.RELEASE_NAME }}
           draft: false
           prerelease: false
-          files: |
-            ./domain-list-community/data/cn-domain.txt
-            ./domain-list-community/data/cn-domain-agh.txt
+
+      - name: Upload assets
+        if: ${{ env.NeedToSync }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./domain-list-community/data/cn-domain.txt
+          asset_name: cn-domain.txt
+          asset_content_type: text/plain
+
+      - name: Upload assets 2
+        if: ${{ env.NeedToSync }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./domain-list-community/data/cn-domain-agh.txt
+          asset_name: cn-domain-agh.txt
+          asset_content_type: text/plain
