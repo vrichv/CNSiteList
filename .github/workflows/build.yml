@@ -31,7 +31,8 @@ jobs:
 
       - name: Clone v2fly/domain-list-community
         if: ${{ env.NeedToSync }}
-        run: git clone --depth=1 https://github.com/v2fly/domain-list-community.git
+        run: |
+          git clone --depth=1 -b ${{ env.TAG_NAME }} https://github.com/v2fly/domain-list-community.git
 
       - name: Copy and Extract
         if: ${{ env.NeedToSync }}
