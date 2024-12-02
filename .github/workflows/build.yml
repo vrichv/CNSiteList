@@ -49,28 +49,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.TAG_NAME }}
-          release_name: ${{ env.RELEASE_NAME }}
+          name: ${{ env.RELEASE_NAME }}
           draft: false
           prerelease: false
-
-      - name: Upload cn-domain.txt
-        if: ${{ env.NeedToSync }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./domain-list-community/data/cn-domain.txt
-          asset_name: cn-domain.txt
-          asset_content_type: text/plain
-
-      - name: Upload cn-domain-agh.txt
-        if: ${{ env.NeedToSync }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./domain-list-community/data/cn-domain-agh.txt
-          asset_name: cn-domain-agh.txt
-          asset_content_type: text/plain
+          files: |
+            ./domain-list-community/data/cn-domain.txt
+            ./domain-list-community/data/cn-domain-agh.txt
