@@ -42,6 +42,22 @@ jobs:
           cd domain-list-community/data
           bash extract.sh
           ls -l cn-domain*
+          cd ../../
+          mkdir publish
+          cp domain-list-community/data/cn-domain.txt domain-list-community/data/cn-domain-agh.txt publish/
+
+      - name: Git push assets to "release" branch
+        if: ${{ env.NeedToSync }}
+        run: |
+          cd publish || exit 1
+          git init
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b release
+          git add .
+          git commit -m "${{ env.RELEASE_NAME }}"
+          git remote add publish "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git push -f publish release
 
       - name: Release
         if: ${{ env.NeedToSync }}
@@ -50,7 +66,7 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           name: ${{ env.RELEASE_NAME }}
           files: |
-            domain-list-community/data/cn-domain.txt
-            domain-list-community/data/cn-domain-agh.txt
+            publish/cn-domain.txt
+            publish/cn-domain-agh.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
